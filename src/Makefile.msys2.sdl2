@@ -47,6 +47,7 @@ VIDEO_sdl2_ldflags := \
 	-llzma \
 	-ljxl \
 	-lhwy \
+	-Wl,-Bdynamic -lavif -Wl,-Bstatic \
 	-lwebp \
 	-lwebpdemux \
 	-lsharpyuv \
@@ -103,13 +104,12 @@ CFLAGS := -std=c99 \
 	-g \
 	-O2 \
 	$(WARNINGS) -pedantic \
-	-static \
 	-DUSE_PRIVATE_PATHS \
 	-DHAVE_DIRENT_H \
 	-DMSYS2_ENCODING_WORKAROUND
 
 # Linker flags
-LDFLAGS :=
+LDFLAGS := -Wl,-Bstatic
 
 # Frontends to compile
 MODULES_cflags := $(VIDEO_sdl2_cflags)
