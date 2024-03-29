@@ -31,9 +31,9 @@ jobs:
           make -f Makefile.ibm dist
           i586-pc-msdosdjgpp-gcc -E -x c -dM /dev/null
 
-       - name: Upload Artifact
-         uses: actions/upload-artifact@v4
-         with:
-           name: dos-archive
-           path: angband.zip
-           retention-days: 3
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dos-archive
+          path: angband.zip
+          retention-days: 3
