@@ -1267,44 +1267,69 @@ bool dir_exists(const char *path)
 #ifdef HAVE_STAT
 bool dir_create(const char *path)
 {
-	const char *ptr;
-	char buf[512];
+	char *buf, *ptr;
+	size_t lbuf, lroot;
 
 	/* If the directory already exists then we're done */
 	if (dir_exists(path)) return true;
 
-	#ifdef WINDOWS
-	/* If we're on windows, we need to skip past the "C:" part. */
-	if (isalpha(path[0]) && path[1] == ':') path += 2;
-	#endif
+	/*
+	 * Normalize the path to know the system-specific root part at the
+	 * start that cannot be created, to remove redundant path separators,
+	 * and, on Unix, to handle paths that start with ~.
+	 */
+	if (path_normalize(NULL, 0, path, false, &lbuf, &lroot) != 1) {
+		/* Could not normalize it.  Give up. */
+		return false;
+	}
+	buf = mem_alloc(lbuf);
+	if (path_normalize(buf, lbuf, path, false, NULL, &lroot) != 0) {
+		/*
+		 * Give up if the first and second path_normalize() calls
+		 * are inconsistent.
+		 */
+		mem_free(buf);
+		return false;
+	}
 
 	/* Iterate through the path looking for path segments. At each step,
 	 * create the path segment if it doesn't already exist. */
-	for (ptr = path; *ptr; ptr++) {
+	ptr = buf + lroot;
+	while (1) {
+		if (!*ptr) {
+			/*
+			 * Reached the end.  Try to create if past the root
+			 * portion of the path.
+			 */
+			bool result = (ptr == buf + lroot) ?
+				dir_exists(buf) : (my_mkdir(buf, 0755) == 0);
+
+			mem_free(buf);
+			return result;
+		}
 		if (*ptr == PATH_SEPC) {
-			/* Find the length of the parent path string */
-			size_t len = (size_t)(ptr - path);
-
-			/* Skip the initial slash */
-			if (len == 0) continue;
-
-			/* If this is a duplicate path separator, continue */
-			if (*(ptr - 1) == PATH_SEPC) continue;
-
-			/* We can't handle really big filenames */
-			if (len - 1 > 512) return false;
-
-			/* Create the parent path string, plus null-padding */
-			my_strcpy(buf, path, len + 1);
+			/* Temporarily replace the separator with a null. */
+			*ptr = '\0';
 
 			/* Skip if the parent exists */
-			if (dir_exists(buf)) continue;
+			if (!dir_exists(buf)) {
+				/*
+				 * The parent doesn't exist, so create it or
+				 * fail.
+				 */
+				if (my_mkdir(buf, 0755) != 0) {
+					mem_free(buf);
+					return false;
+				}
+			}
 
-			/* The parent doesn't exist, so create it or fail */
-			if (my_mkdir(buf, 0755) != 0) return false;
+			/* Restore the separator and advance. */
+			*ptr = PATH_SEPC;
+			++ptr;
+		} else {
+			++ptr;
 		}
 	}
-	return my_mkdir(path, 0755) == 0 ? true : false;
 }
 
 #else /* HAVE_STAT */
