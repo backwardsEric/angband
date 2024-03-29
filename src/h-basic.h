@@ -55,10 +55,14 @@
 # endif
 
 /**
- * May need to be tightened:  without autoconf.h assume all Unixes have mkdir().
+ * May need to be tightened:  without autoconf.h assume all Unixes have mkdir()
+ * and getcwd().
  */
 # if !defined(HAVE_MKDIR) && !defined(HAVE_CONFIG_H)
 #   define HAVE_MKDIR
+# endif
+# if !defined(HAVE_GETCWD) && !defined(HAVE_CONFIG_H)
+#   define HAVE_GETCWD
 # endif
 
 #endif
