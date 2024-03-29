@@ -30,6 +30,7 @@ jobs:
           make -f Makefile.ibm
           make -f Makefile.ibm dist
           i586-pc-msdosdjgpp-gcc -E -x c -dM /dev/null
+          i586-pc-msdosdjgpp-nm -u z-file.o
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
