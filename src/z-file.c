@@ -47,6 +47,10 @@
 # include <sys/types.h>
 #endif
 
+#if defined(HAVE_GETCWD) || defined(NDS) || defined(DJGPP)
+# include <unistd.h>
+#endif
+
 #if defined (WINDOWS) && !defined (CYGWIN)
 # define my_mkdir(path, perms) mkdir(path)
 #elif defined(HAVE_MKDIR) || defined(MACH_O_CARBON) || defined (CYGWIN) || defined(NDS)
@@ -568,18 +572,75 @@ int path_normalize(char *buf, size_t len, const char *path_in,
 	root_size = 1;
 #else
 	/*
-	 * It's neither Windows nor Unix and don't know how to get the working
-	 * directory so reject any paths that aren't absolute.
+	 * It's neither Windows nor Unix.  If the path is relative and the
+	 * platform has getcwd(), use that to determine the working directory.
+	 * Otherwise reject any paths that are not absolute.
 	 */
 	if (path_in[0] != PATH_SEPC) {
+#if defined(HAVE_GETCWD) || defined(NDS) || defined(DJGPP)
+		/*
+		 * Determine what size of buffer is necessary to hold the
+		 * working directory.
+		 */
+		size_t work_sz = 1024;
+		char *work = mem_alloc(work_sz);
+
+		while (1) {
+			if (getcwd(work, work_sz)) {
+				/*
+				 * getcwd() is supposed to return an absolute
+				 * path name.  Process it through
+				 * path_normalize() in case doesn't exclude
+				 * having redundant path separators or things
+				 * like "/./" or "/../" in it.
+				 */
+				if (work[0] != PATH_SEPC) {
+					/* Got a relative path.  Give up. */
+					mem_free(work);
+					goto ABNORMAL_RETURN;
+				}
+				result = path_normalize(buf, len, work,
+					(path_in[0]) ? true : false,
+					&oidx_high, NULL);
+				mem_free(work);
+				if ((result != 0 && result != 1)
+						|| oidx_high <= 1) {
+					goto ABNORMAL_RETURN;
+				}
+				/* Backup over the trailing null. */
+				oidx = oidx_high - 1;
+				break;
+			} else if (errno != ERANGE) {
+				/*
+				 * Increasing the buffer size won't help
+				 * resolve the error so give up.
+				 */
+				mem_free(work);
+				goto ABNORMAL_RETURN;
+			}
+			if (work_sz < ((size_t)-1) / 2) {
+				work_sz *= 2;
+			} else if (work_sz < (size_t)-1) {
+				work_sz = (size_t)-1;
+			} else {
+				/* Give up. */
+				mem_free(work);
+				goto ABNORMAL_RETURN;
+			}
+			work = mem_realloc(work, work_sz);
+		}
+		iidx = 0;
+#else
 		goto ABNORMAL_RETURN;
+#endif
+	} else {
+		/* Copy the leading path separator. */
+		if (len) {
+			buf[0] = PATH_SEPC;
+		}
+		oidx = 1;
+		iidx = 1;
 	}
-	/* Copy the leading path separator. */
-	if (len) {
-		buf[0] = PATH_SEPC;
-	}
-	oidx = 1;
-	iidx = 1;
 	root_size = 1;
 #endif /* ifdef WINDOWS else block */
 
@@ -588,7 +649,7 @@ int path_normalize(char *buf, size_t len, const char *path_in,
 			break;
 		}
 		/*
-		 * The output path generated so for should end with a path
+		 * The output path generated so far should end with a path
 		 * separator, unless it was necessary to truncate the result.
 		 */
 		assert((oidx <= len && oidx > 0 && buf[oidx - 1] == PATH_SEPC)
