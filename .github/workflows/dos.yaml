@@ -2,7 +2,7 @@ name: DOS Cross-compiler
 
 on:
   push:
-    branches: [ master ]
+    branches: [ 'master', 'dos-test' ]
   pull_request:
 
 jobs:
@@ -28,3 +28,12 @@ jobs:
           PATH="$PATH":"`pwd`/djgpp/bin"
           cd src
           make -f Makefile.ibm
+          make -f Makefile.ibm dist
+          i586-pc-msdosdjgpp-gcc -E -x c -dM /dev/null
+
+       - name: Upload Artifact
+         uses: actions/upload-artifact@v4
+         with:
+           name: dos-archive
+           path: angband.zip
+           retention-days: 3
