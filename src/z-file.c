@@ -521,6 +521,8 @@ int path_normalize(char *buf, size_t len, const char *path_in,
 					 * path separators or things like "/./"
 					 * or "/../" in it.
 					 */
+					(void)fprintf(stderr, "work = '%s' work_sz = '%lu'\n,
+						work, (unsigned long)work_sz);
 					if (work[0] != PATH_SEPC) {
 						/*
 						 * Got a relative path.  Give
