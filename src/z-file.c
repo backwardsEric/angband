@@ -521,7 +521,7 @@ int path_normalize(char *buf, size_t len, const char *path_in,
 					 * path separators or things like "/./"
 					 * or "/../" in it.
 					 */
-					(void)fprintf(stderr, "work = '%s' work_sz = '%lu'\n,
+					(void)fprintf(stderr, "work = '%s' work_sz = '%lu'\n",
 						work, (unsigned long)work_sz);
 					if (work[0] != PATH_SEPC) {
 						/*
@@ -534,6 +534,8 @@ int path_normalize(char *buf, size_t len, const char *path_in,
 					result = path_normalize(buf, len, work,
 						(path_in[0]) ? true : false,
 						&oidx_high, NULL);
+					(void)fprintf(stderr, "result = %d buf = '%s' oidx_high = %lu\n",
+						result, buf, (unsigned long)oidx_high);
 					mem_free(work);
 					if ((result != 0 && result != 1)
 							|| oidx_high <= 1) {
