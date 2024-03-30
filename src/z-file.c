@@ -1345,6 +1345,7 @@ bool dir_create(const char *path)
 	 */
 	if (path_normalize(NULL, 0, path, false, &lbuf, &lroot) != 1) {
 		/* Could not normalize it.  Give up. */
+		(void)fprintf(stderr, "First call to path_normalize() failed.\n");
 		return false;
 	}
 	buf = mem_alloc(lbuf);
@@ -1354,6 +1355,7 @@ bool dir_create(const char *path)
 		 * are inconsistent.
 		 */
 		mem_free(buf);
+		(void)fprintf(stderr, "Second call to path_normalize() failed.\n");
 		return false;
 	}
 
@@ -1369,6 +1371,7 @@ bool dir_create(const char *path)
 			bool result = (ptr == buf + lroot) ?
 				dir_exists(buf) : (my_mkdir(buf, 0755) == 0);
 
+			(void)fprintf(stderr, "Failed to create '%s'.\n", buf);
 			mem_free(buf);
 			return result;
 		}
@@ -1383,6 +1386,7 @@ bool dir_create(const char *path)
 				 * fail.
 				 */
 				if (my_mkdir(buf, 0755) != 0) {
+					(void)fprintf(stderr, "Failed to create '%s'.\n", buf);
 					mem_free(buf);
 					return false;
 				}
