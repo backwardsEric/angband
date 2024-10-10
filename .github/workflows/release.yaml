@@ -119,8 +119,9 @@ jobs:
       # (those four are so configuration and "make manual" work), and git
       # (so scripts/version.sh works).  With Python 3, use a virtual
       # environment (requires at least Python 3.3) to install the 3rd party
-      # theme for compatibility with "externally managed environments"
-      # like GitHub's runner for Ubuntu 24.04.
+      # theme and a hacked version of sphinx-build which will use that
+      # than environment for compatibility with "externally managed
+      # environments" like GitHub's runner for Ubuntu 24.04.
       - name: Install Build Dependencies
         id: build_dep
         run: |
@@ -131,9 +132,13 @@ jobs:
             sudo apt-get install python3-pip
             python3 -m venv .venv/doc-builder
             .venv/doc-builder/bin/pip install sphinx-better-theme
+            echo "#!${PWD}/.venv/doc-builder/bin/python" >./sphinx-build
+            tail -n +2 `which sphinx-build` >>./sphinx-build
+            chmod a+x ./sphinx-build
           else
             sudo apt-get install python-pip
             pip install sphinx-better-theme
+            ln -s `which sphinx-build` ./sphinx-build
           fi
 
       # Need commit history and tags for scripts/version.sh to work as expected
@@ -143,13 +148,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      # If a virtual environment was set up in the build dependencies step,
-      # activate it.
+      # Use the version (perhaps just a symbolic link) of sphinx-build set up
+      # in the build dependencies step.
       - name: Convert
         run: |
-          test ! -e .venv/doc-builder/bin/activate || source .venv/doc-builder/bin/activate
           ./autogen.sh
-          ./configure --with-no-install --with-sphinx
+          ./configure SPHINXBUILD="${PWD}/sphinx-build" --with-no-install --with-sphinx
           make manual
 
       - name: Archive
