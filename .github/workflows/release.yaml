@@ -2,7 +2,7 @@ name: create-github-release
 
 on:
   push:
-    branches: [ master ]
+    branches: [ 'master', 'test-workflow' ]
 
 env:
     # Used as the name when uploading or downloading the artifact for passing
@@ -62,7 +62,7 @@ env:
 jobs:
   setup:
     name: Setup
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       # Need commit history and tags for scripts/version.sh to work as expected
       # so use 0 for fetch-depth.
@@ -112,7 +112,7 @@ jobs:
 
   docconvert:
     name: Document Conversion
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       # Need both Sphinx (Python documentation tool) and a 3rd party theme.
       # Also install pip (to get theme), gcc, automake, autoconf, make
@@ -166,7 +166,7 @@ jobs:
   source:
     needs: setup
     name: Source Archive
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Download Artifact with Configuration Information
         uses: actions/download-artifact@v4
@@ -368,7 +368,7 @@ jobs:
   _3ds:
     needs: [setup, docconvert]
     name: Nintendo 3DS
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container: devkitpro/devkitarm
     steps:
       - name: Download Artifact with Configuration Information
@@ -481,7 +481,7 @@ jobs:
   nds:
     needs: [setup, docconvert]
     name: Nintendo DS
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container: devkitpro/devkitarm
     steps:
       - name: Download Artifact with Configuration Information
@@ -550,7 +550,7 @@ jobs:
   release:
     needs: [ setup, source, windows, mac, _3ds, nds ]
     name: Create GitHub Release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Download Artifact with Configuration Information
         uses: actions/download-artifact@v4
