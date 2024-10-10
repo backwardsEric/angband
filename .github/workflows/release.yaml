@@ -130,16 +130,15 @@ jobs:
           use_python3=`python --version 2>&1 | awk "/^Python 3\\./ { print \"YES\" ; exit 0 ; } ; { print \"NO\" ; exit 0; }"`
           if test X$use_python3 == XYES ; then
             sudo apt-get install python3-pip
-            python3 -m venv .venv/doc-builder
-            .venv/doc-builder/bin/pip install sphinx-better-theme
-            echo "#!${PWD}/.venv/doc-builder/bin/python" >./sphinx-build
-            tail -n +2 `which sphinx-build` >>./sphinx-build
-            chmod a+x ./sphinx-build
-            head -1 ./sphinx-build
+            python3 -m venv /var/tmp/.venv/doc-builder
+            /var/tmp/.venv/doc-builder/bin/pip install sphinx-better-theme
+            echo "#!${PWD}/.venv/doc-builder/bin/python" >/var/tmp/sphinx-build
+            tail -n +2 `which sphinx-build` >>/var/tmp/sphinx-build
+            chmod a+x /var/tmp/sphinx-build
           else
             sudo apt-get install python-pip
             pip install sphinx-better-theme
-            ln -s `which sphinx-build` ./sphinx-build
+            ln -s `which sphinx-build` /var/tmp/sphinx-build
           fi
 
       # Need commit history and tags for scripts/version.sh to work as expected
@@ -154,7 +153,7 @@ jobs:
       - name: Convert
         run: |
           ./autogen.sh
-          ./configure SPHINXBUILD="${PWD}/sphinx-build" --with-no-install --with-sphinx
+          ./configure SPHINXBUILD="/var/tmp/sphinx-build" --with-no-install --with-sphinx
           make manual
 
       - name: Archive
