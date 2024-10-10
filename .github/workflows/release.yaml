@@ -135,6 +135,7 @@ jobs:
             echo "#!${PWD}/.venv/doc-builder/bin/python" >./sphinx-build
             tail -n +2 `which sphinx-build` >>./sphinx-build
             chmod a+x ./sphinx-build
+            head -1 ./sphinx-build
           else
             sudo apt-get install python-pip
             pip install sphinx-better-theme
