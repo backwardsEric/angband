@@ -140,6 +140,7 @@ jobs:
           if test X$use_python3 == XYES ; then
             sudo apt-get install python3-pip
             python3 -m venv .venv/doc-builder
+            .venv/doc-builder/bin/pip install -U sphinx
             .venv/doc-builder/bin/pip install sphinx-better-theme
             echo "#!${PWD}/.venv/doc-builder/bin/python" >./sphinx-build
             tail -n +2 `which sphinx-build` >>./sphinx-build
