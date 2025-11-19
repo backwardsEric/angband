@@ -28,8 +28,8 @@ jobs:
 
       - name: Add dumpbin to the path
         uses: TheMrMilchmann/setup-msvc-dev@v3
-          with:
-            arch: x64
+        with:
+          arch: x64
 
       - name: Clone Project
         uses: actions/checkout@v4
@@ -75,8 +75,8 @@ jobs:
 
       - name: Add dumpbin to the path
         uses: TheMrMilchmann/setup-msvc-dev@v3
-          with:
-            arch: x64
+        with:
+          arch: x64
 
       - name: Clone Project
         uses: actions/checkout@v4
@@ -116,8 +116,8 @@ jobs:
 
       - name: Add dumpbin to the path
         uses: TheMrMilchmann/setup-msvc-dev@v3
-          with:
-            arch: x86
+        with:
+          arch: x86
 
       - name: Clone Project
         uses: actions/checkout@v4
@@ -150,8 +150,8 @@ jobs:
 
       - name: Add dumpbin to the path
         uses: TheMrMilchmann/setup-msvc-dev@v3
-          with:
-            arch: x86
+        with:
+          arch: x86
 
       - name: Clone Project
         uses: actions/checkout@v4
@@ -184,8 +184,8 @@ jobs:
 
       - name: Add dumpbin to the path
         uses: TheMrMilchmann/setup-msvc-dev@v3
-          with:
-            arch: x86
+        with:
+          arch: x86
 
       - name: Clone Project
         uses: actions/checkout@v4
@@ -234,8 +234,8 @@ jobs:
 
       - name: Add dumpbin to the path
         uses: TheMrMilchmann/setup-msvc-dev@v3
-          with:
-            arch: x64
+        with:
+          arch: x64
 
       - name: Clone Project
         uses: actions/checkout@v4
