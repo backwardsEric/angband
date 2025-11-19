@@ -26,9 +26,6 @@ jobs:
             mingw-w64-x86_64-gcc
             mingw-w64-x86_64-ncurses
 
-      - name: Install dumpbin
-        uses: lorenalexm/install-dumpbin-action@main
-
       - name: Clone Project
         uses: actions/checkout@v4
 
@@ -46,6 +43,7 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE=../toolchains/msys2-mingw64-gcu.cmake \
             ..
           ninja -j$(nproc)
+          dir "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
           dumpbin /dependents game/angband.exe
 
   sdl:
@@ -70,9 +68,6 @@ jobs:
             mingw-w64-x86_64-SDL2_ttf
             mingw-w64-x86_64-SDL2_image
             mingw-w64-x86_64-SDL2_mixer
-
-      - name: Install dumpbin
-        uses: lorenalexm/install-dumpbin-action@main
 
       - name: Clone Project
         uses: actions/checkout@v4
@@ -110,9 +105,6 @@ jobs:
             make
             mingw-w64-i686-gcc
 
-      - name: Install dumpbin
-        uses: lorenalexm/install-dumpbin-action@main
-
       - name: Clone Project
         uses: actions/checkout@v4
 
@@ -142,9 +134,6 @@ jobs:
             make
             mingw-w64-i686-gcc
 
-      - name: Install dumpbin
-        uses: lorenalexm/install-dumpbin-action@main
-
       - name: Clone Project
         uses: actions/checkout@v4
 
@@ -173,9 +162,6 @@ jobs:
             mingw-w64-i686-ninja
             mingw-w64-i686-gcc
             mingw-w64-i686-libpng
-
-      - name: Install dumpbin
-        uses: lorenalexm/install-dumpbin-action@main
 
       - name: Clone Project
         uses: actions/checkout@v4
@@ -221,9 +207,6 @@ jobs:
             mingw-w64-x86_64-ninja
             mingw-w64-x86_64-gcc
             mingw-w64-x86_64-libpng
-
-      - name: Install dumpbin
-        uses: lorenalexm/install-dumpbin-action@main
 
       - name: Clone Project
         uses: actions/checkout@v4
