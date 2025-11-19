@@ -2,7 +2,7 @@ name: msys2
 
 on:
   push:
-    branches: [ master ]
+    branches: [ 'master', 'msys2' ]
   pull_request:
 
 jobs:
@@ -26,6 +26,9 @@ jobs:
             mingw-w64-x86_64-gcc
             mingw-w64-x86_64-ncurses
 
+      - name: Add dumpbin to the path
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+
       - name: Clone Project
         uses: actions/checkout@v4
 
@@ -43,6 +46,7 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE=../toolchains/msys2-mingw64-gcu.cmake \
             ..
           ninja -j$(nproc)
+          dumpbin /dependents game/angband.exe
 
   sdl:
     name: SDL2
@@ -67,6 +71,9 @@ jobs:
             mingw-w64-x86_64-SDL2_image
             mingw-w64-x86_64-SDL2_mixer
 
+      - name: Add dumpbin to the path
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+
       - name: Clone Project
         uses: actions/checkout@v4
 
@@ -74,6 +81,7 @@ jobs:
         run: |
           cd src
           make -f Makefile.msys2.sdl2 SOUND=yes -j$(nproc)
+          dumpbin /dependents angband
 
       - name: Build with CMake/Ninja
         run: |
@@ -81,6 +89,7 @@ jobs:
           cd build
           cmake -G Ninja -DSUPPORT_SDL2_FRONTEND=ON ..
           ninja -j$(nproc)
+          dumpbin /dependents game/angband.exe
 
   makefile-win:
     name: Makefile-win
@@ -101,6 +110,9 @@ jobs:
             make
             mingw-w64-i686-gcc
 
+      - name: Add dumpbin to the path
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+
       - name: Clone Project
         uses: actions/checkout@v4
 
@@ -108,6 +120,7 @@ jobs:
         run: |
           cd src
           make -f Makefile.win MINGW=yes -j$(nproc)
+          dumpbin /dependents angband.exe
 
   configure-win:
     runs-on: windows-latest
@@ -129,6 +142,9 @@ jobs:
             make
             mingw-w64-i686-gcc
 
+      - name: Add dumpbin to the path
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+
       - name: Clone Project
         uses: actions/checkout@v4
 
@@ -138,6 +154,7 @@ jobs:
           ./configure --enable-win
           make install
           make tests
+          dumpbin /dependents angband.exe
 
   cmake-win32:
     runs-on: windows-latest
@@ -157,6 +174,9 @@ jobs:
             mingw-w64-i686-gcc
             mingw-w64-i686-libpng
 
+      - name: Add dumpbin to the path
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+
       - name: Clone Project
         uses: actions/checkout@v4
 
@@ -170,6 +190,7 @@ jobs:
         run: |
           cd build
           ninja -j$(nproc)
+          dumpbin /dependents game/angband.exe
 
       - name: Run Tests
         run: |
@@ -182,6 +203,7 @@ jobs:
           cd build
           cmake -G Ninja -DSUPPORT_WINDOWS_FRONTEND=ON -DSUPPORT_BUNDLED_PNG=ON ..
           ninja -j$(nproc)
+          dumpbin /dependents game/angband.exe
 
   cmake-win64:
     runs-on: windows-latest
@@ -200,6 +222,9 @@ jobs:
             mingw-w64-x86_64-gcc
             mingw-w64-x86_64-libpng
 
+      - name: Add dumpbin to the path
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+
       - name: Clone Project
         uses: actions/checkout@v4
 
@@ -213,6 +238,7 @@ jobs:
         run: |
           cd build
           ninja -j$(nproc)
+          dumpbin /dependents game/angband.exe
 
       - name: Run Tests
         run: |
