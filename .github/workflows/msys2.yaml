@@ -26,10 +26,8 @@ jobs:
             mingw-w64-x86_64-gcc
             mingw-w64-x86_64-ncurses
 
-      - name: Add dumpbin to the path
-        uses: TheMrMilchmann/setup-msvc-dev@v3
-        with:
-          arch: x64
+      - name: Install dumpbin
+        uses: lorenalexm/install-dumpbin-action@main
 
       - name: Clone Project
         uses: actions/checkout@v4
@@ -73,10 +71,8 @@ jobs:
             mingw-w64-x86_64-SDL2_image
             mingw-w64-x86_64-SDL2_mixer
 
-      - name: Add dumpbin to the path
-        uses: TheMrMilchmann/setup-msvc-dev@v3
-        with:
-          arch: x64
+      - name: Install dumpbin
+        uses: lorenalexm/install-dumpbin-action@main
 
       - name: Clone Project
         uses: actions/checkout@v4
@@ -114,10 +110,8 @@ jobs:
             make
             mingw-w64-i686-gcc
 
-      - name: Add dumpbin to the path
-        uses: TheMrMilchmann/setup-msvc-dev@v3
-        with:
-          arch: x86
+      - name: Install dumpbin
+        uses: lorenalexm/install-dumpbin-action@main
 
       - name: Clone Project
         uses: actions/checkout@v4
@@ -148,10 +142,8 @@ jobs:
             make
             mingw-w64-i686-gcc
 
-      - name: Add dumpbin to the path
-        uses: TheMrMilchmann/setup-msvc-dev@v3
-        with:
-          arch: x86
+      - name: Install dumpbin
+        uses: lorenalexm/install-dumpbin-action@main
 
       - name: Clone Project
         uses: actions/checkout@v4
@@ -182,10 +174,8 @@ jobs:
             mingw-w64-i686-gcc
             mingw-w64-i686-libpng
 
-      - name: Add dumpbin to the path
-        uses: TheMrMilchmann/setup-msvc-dev@v3
-        with:
-          arch: x86
+      - name: Install dumpbin
+        uses: lorenalexm/install-dumpbin-action@main
 
       - name: Clone Project
         uses: actions/checkout@v4
@@ -232,10 +222,8 @@ jobs:
             mingw-w64-x86_64-gcc
             mingw-w64-x86_64-libpng
 
-      - name: Add dumpbin to the path
-        uses: TheMrMilchmann/setup-msvc-dev@v3
-        with:
-          arch: x64
+      - name: Install dumpbin
+        uses: lorenalexm/install-dumpbin-action@main
 
       - name: Clone Project
         uses: actions/checkout@v4
