@@ -36,4 +36,4 @@ jobs:
 
       - name: Build with CMake/Ninja
         run: |
-          find "C:\Program Files\Microsoft Visual Studio\2022\EnterpriseC" -print --name 'dumpbin*'
+          find "C:\Program Files\Microsoft Visual Studio\2022\EnterpriseC" -name 'dumpbin*' -print
