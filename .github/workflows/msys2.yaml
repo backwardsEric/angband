@@ -43,7 +43,7 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE=../toolchains/msys2-mingw64-gcu.cmake \
             ..
           ninja -j$(nproc)
-          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.4435207\bin\Hostx64\x64\dumpbin.exe" /dependents game/angband.exe
+          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x64\dumpbin.exe" /dependents game/angband.exe
 
   sdl:
     name: SDL2
@@ -75,7 +75,7 @@ jobs:
         run: |
           cd src
           make -f Makefile.msys2.sdl2 SOUND=yes -j$(nproc)
-          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.4435207\bin\Hostx64\x64\dumpbin.exe" /dependents game/angband.exe
+          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x64\dumpbin.exe" /dependents game/angband.exe
 
       - name: Build with CMake/Ninja
         run: |
@@ -83,7 +83,7 @@ jobs:
           cd build
           cmake -G Ninja -DSUPPORT_SDL2_FRONTEND=ON ..
           ninja -j$(nproc)
-          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.4435207\bin\Hostx64\x64\dumpbin.exe" /dependents game/angband.exe
+          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x64\dumpbin.exe" /dependents game/angband.exe
 
   makefile-win:
     name: Makefile-win
@@ -111,7 +111,7 @@ jobs:
         run: |
           cd src
           make -f Makefile.win MINGW=yes -j$(nproc)
-          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.4435207\bin\Hostx64\x86\dumpbin.exe" /dependents game/angband.exe
+          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x86\dumpbin.exe" /dependents game/angband.exe
 
   configure-win:
     runs-on: windows-latest
@@ -142,7 +142,7 @@ jobs:
           ./configure --enable-win
           make install
           make tests
-          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.4435207\bin\Hostx64\x64\dumpbin.exe" /dependents game/angband.exe
+          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x64\dumpbin.exe" /dependents game/angband.exe
 
   cmake-win32:
     runs-on: windows-latest
@@ -175,7 +175,7 @@ jobs:
         run: |
           cd build
           ninja -j$(nproc)
-          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.4435207\bin\Hostx64\x86\dumpbin.exe" /dependents game/angband.exe
+          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x86\dumpbin.exe" /dependents game/angband.exe
 
       - name: Run Tests
         run: |
@@ -188,7 +188,7 @@ jobs:
           cd build
           cmake -G Ninja -DSUPPORT_WINDOWS_FRONTEND=ON -DSUPPORT_BUNDLED_PNG=ON ..
           ninja -j$(nproc)
-          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.4435207\bin\Hostx64\x86\dumpbin.exe" /dependents game/angband.exe
+          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x86\dumpbin.exe" /dependents game/angband.exe
 
   cmake-win64:
     runs-on: windows-latest
@@ -220,7 +220,7 @@ jobs:
         run: |
           cd build
           ninja -j$(nproc)
-          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.4435207\bin\Hostx64\x64\dumpbin.exe" /dependents game/angband.exe
+          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x64\dumpbin.exe" /dependents game/angband.exe
 
       - name: Run Tests
         run: |
