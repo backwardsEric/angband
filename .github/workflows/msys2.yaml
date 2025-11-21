@@ -34,6 +34,7 @@ jobs:
         run: |
           cd src
           make -f Makefile.msys2 -j$(nproc)
+          ntldd angband.exe
 
       - name: Build with CMake/Ninja
         run: |
