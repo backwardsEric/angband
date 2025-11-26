@@ -35,5 +35,5 @@ jobs:
         run: |
           mkdir build
           cd build
-          env LDFLAGS="-static -lSDL2 -lSDL2_ttf -lSDL2_image -ltiff -ljbig -lLerc -lzstd -llzma -ljxl -lhwy -lavif -laom -ldav1d -lrav1e -lSvtAv1Enc -lyuv -lwebp -lwebpdemux -lsharpyuv -lfreetype -lharfbuzz -lDwrite -lfreetype -lbrotlidec -lbrotlicommon -lgraphite2 -lpng -ldeflate -ljpeg -lbz2 -lintl -lrpcrt4 -lz -lVersion -lstdc++ -lImm32 -lhid -lsetupapi -lole32 -loleaut32 -lSDL2_mixer -lflac -lopusfile -lopus -lvorbisfile -lvorbis -logg -lshlwapi -lwavpack -lxmp -lwinmm -lntdll" cmake -G Ninja -DSUPPORT_SDL2_FRONTEND=ON ..
+          env LDFLAGS="-static `sdl2-config --static-libs` -lSDL2_ttf -lSDL2_image -ltiff -ljbig -lLerc -lzstd -llzma -ljxl -lhwy -lavif -laom -ldav1d -lrav1e -lSvtAv1Enc -lyuv -lwebp -lwebpdemux -lsharpyuv -lfreetype -lharfbuzz -lDwrite -lfreetype -lbrotlidec -lbrotlicommon -lgraphite2 -lpng -ldeflate -ljpeg -lbz2 -lintl -lrpcrt4 -lz -lVersion -lstdc++ -lImm32 -lhid -lsetupapi -lole32 -loleaut32 -lSDL2_mixer -lflac -lopusfile -lopus -lvorbisfile -lvorbis -logg -lshlwapi -lwavpack -lxmp -lwinmm -lntdll" cmake -G Ninja -DSUPPORT_SDL2_FRONTEND=ON ..
           ninja -j$(nproc)
