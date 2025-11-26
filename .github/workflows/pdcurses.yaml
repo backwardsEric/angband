@@ -32,8 +32,9 @@ jobs:
       - name: Fetch and build PDCurses
         run: |
           git clone https://github.com/wmcbrine/PDCurses.git pdcurses
+          cd pdcurses
           cp curses.h ncurses.h
-          cd pdcurses/wincon
+          cd wincon
           make -f Makefile UTF8=Y
           
       - name: Build with CMake/Ninja
