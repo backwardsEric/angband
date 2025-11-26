@@ -23,5 +23,5 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake.exe -D SUPPORT_WINDOWS_FRONTEND=ON -D SUPPORT_BUNDLED_PNG=ON ..
+          cmake.exe -DSUPPORT_WINDOWS_FRONTEND=ON -DSUPPORT_BUNDLED_PNG=ON -B . -S ..
           cmake.exe --build .
