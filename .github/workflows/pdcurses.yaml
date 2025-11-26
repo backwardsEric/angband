@@ -42,11 +42,10 @@ jobs:
           mkdir build
           cd build
           cmake -G Ninja \
+            -DCMAKE_DISABLE_FIND_PACKAGE_Curses=TRUE \
             -DCURSES_CFLAGS=-DPDC_WIDE \
             -DCURSES_INCLUDE_DIRS=${PWD}/../pdcurses \
-            -DCURSES_INCLUDE_DIR=${PWD}/../pdcurses \
             -DCURSES_LIBRARIES=${PWD}/../pdcurses/wincon/pdcurses.a \
-            -DCURSES_LIBRARY=${PWD}/../pdcurses/wincon/pdcurses.a \
             -DSUPPORT_GCU_FRONTEND=ON \
             -DCMAKE_TOOLCHAIN_FILE=../toolchains/msys2-mingw64-gcu.cmake \
             ..
