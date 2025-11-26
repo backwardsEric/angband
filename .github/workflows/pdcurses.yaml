@@ -1,0 +1,49 @@
+name: pdcurses
+
+on:
+  push:
+    branches: [ workflow-pdcurses ]
+  pull_request:
+
+jobs:
+  stock:
+    name: MSYS2
+    runs-on: windows-latest
+    defaults:
+      # Reduce verbosity and always run with msys2 as the default shell.
+      # See https://github.com/marketplace/actions/setup-msys2 .
+      run:
+        shell: msys2 {0}
+    steps:
+      - name: Set up prerequisites
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: >-
+            git
+            make
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-gcc
+
+      - name: Clone Project
+        uses: actions/checkout@v4
+
+      - name: Fetch and build PDCurses
+        run: |
+          git clone https://github.com/wmcbrine/PDCurses.git pdcurses
+          cp curses.h ncurses.h
+          cd pdcurses/wincon
+          make -f Makefile UTF8=Y
+          
+      - name: Build with CMake/Ninja
+        run: |
+          mkdir build
+          cd build
+          cmake -G Ninja \
+            -DCURSES_INCLUDE_DIRS=${PWD}/../pdcurses \
+            -DCURSES_LIBRARIES=${PWD}/../pdcurses/wincon/pdcurses.a
+            -DSUPPORT_GCU_FRONTEND=ON \
+            -DCMAKE_TOOLCHAIN_FILE=../toolchains/msys2-mingw64-gcu.cmake \
+            ..
+          ninja -j$(nproc)
