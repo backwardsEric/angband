@@ -1,0 +1,26 @@
+name: cygwin
+
+on:
+  push:
+    branches: [ workflow-cygwin-cmake ]
+  pull_request:
+
+jobs:
+  stock:
+    name: Stock
+    runs-on: windows-latest
+    steps:
+      - name: Set up prerequisites
+        uses: egor-tensin/setup-cygwin@v4
+        with:
+          packages: cmake gcc-g++
+
+      - name: Clone Project
+        uses: actions/checkout@v4
+
+      - name: Build with CMake/Ninja
+        run: |
+          mkdir build
+          chdir build
+          cmake.exe -DSUPPORT_WINDOWS_FRONTEND=ON -DSUPPORT_BUNDLED_PNG=ON ..
+          cmake.exe --build .
