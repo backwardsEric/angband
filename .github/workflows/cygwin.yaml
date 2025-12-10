@@ -43,10 +43,9 @@ jobs:
         shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
         run: |
           cd "$(cygpath -u "$GITHUB_WORKSPACE")"
-          cd build
-          prog=`cmake -LA | sed -En 's/^OUR_CACHED_EXECUTABLE_NAME=//p'`
+          prog=`cmake -S . -LA build | sed -En 's/^OUR_CACHED_EXECUTABLE_NAME=//p'`
           echo $prog
-          cd game
+          cd build/game
           set +e
           timeout 1 "./$prog"
           EXIT_CODE=$?
