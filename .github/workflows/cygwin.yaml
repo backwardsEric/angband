@@ -2,7 +2,7 @@ name: cygwin
 
 on:
   push:
-    branches: [ master ]
+    branches: [ 'master', 'test-workflow' ]
   pull_request:
 
 jobs:
@@ -44,6 +44,7 @@ jobs:
         run: |
           cd "$(cygpath -u "$GITHUB_WORKSPACE")"
           cd build/game
+          cmake --build .. -t print-executable
           prog=`cmake --build .. -t print-executable | head -1`
           set +e
           timeout 1 "./$prog.exe"
