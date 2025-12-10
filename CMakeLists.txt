@@ -439,6 +439,11 @@ target_include_directories(OurExecutable PRIVATE
 )
 target_link_libraries(OurExecutable PRIVATE ${ANGBAND_CORE_LINK_LIBRARIES})
 
+# Allow for some introspection:  something downstream from the build process
+# can run "cmake --build . -t print-executable" in the build directory to get
+# the base name of the generated executable.
+add_custom_target(print-executable "${CMAKE_COMMAND}" -E echo "${OUR_EXECUTABLE_NAME}")
+
 if(SUPPORT_X11_FRONTEND)
     include(src/cmake/macros/X11_Frontend.cmake)
     configure_x11_frontend(OurExecutable)

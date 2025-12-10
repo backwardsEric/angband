@@ -45,6 +45,11 @@ $(PROGNAME).a: $(OBJECTS)
 		$(LINK_FAILED); \
 	fi
 
+# Allow for some introspection:  something downstream can run
+# "make print-executable" to get the name of the executable generated.
+print-executable:
+	echo ${PROG}
+
 check: tests
 tests: $(PROGNAME).a
 	env CC="$(CC)" CFLAGS="$(CFLAGS)" CPPFLAGS="$(CPPFLAGS)" \
@@ -146,4 +151,4 @@ post-install:
 	fi
 
 FORCE :
-.PHONY : check tests coverage clean-coverage tests/ran-already
+.PHONY : print-executable check tests coverage clean-coverage tests/ran-already
