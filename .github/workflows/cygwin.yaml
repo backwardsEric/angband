@@ -37,4 +37,4 @@ jobs:
             -DSUPPORT_WINDOWS_FRONTEND=ON \
             -DSUPPORT_BUNDLED_PNG=ON \
             ..
-          cmake -LA .. | grep EXECUTABLE_NAME
+          cmake -LA ..
