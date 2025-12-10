@@ -43,11 +43,12 @@ jobs:
         shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
         run: |
           cd "$(cygpath -u "$GITHUB_WORKSPACE")"
-          cd build/game
-          cmake --build .. -t print-executable
-          prog=`cmake --build .. -t print-executable | head -1`
+          cd build
+          prog=`cmake -LA | sed -En 's/^OUR_CACHED_EXECUTABLE_NAME=//p'`
+          echo $prog
+          cd game
           set +e
-          timeout 1 "./$prog.exe"
+          timeout 1 "./$prog"
           EXIT_CODE=$?
           set -e
           if [ $EXIT_CODE -eq 124 ]; then
@@ -91,9 +92,9 @@ jobs:
         shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
         run: |
           cd "$(cygpath -u "$GITHUB_WORKSPACE")"
-          prog=`make print-executable`
+          prog=`cd src && make print-executable`
           set +e
-          timeout 1 "./$prog.exe"
+          timeout 1 "./$prog"
           EXIT_CODE=$?
           set -e
           if [ $EXIT_CODE -eq 124 ]; then

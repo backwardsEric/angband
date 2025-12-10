@@ -48,7 +48,7 @@ $(PROGNAME).a: $(OBJECTS)
 # Allow for some introspection:  something downstream can run
 # "make print-executable" to get the name of the executable generated.
 print-executable:
-	echo ${PROG}
+	@echo ${PROG}
 
 check: tests
 tests: $(PROGNAME).a

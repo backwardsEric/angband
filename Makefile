@@ -9,7 +9,7 @@ REPOCLEAN = aclocal.m4 autom4te.cache configure src/autoconf.h.in version
 
 .PHONY: print-executable check tests manual manual-optional dist
 print-executable:
-	$(MAKE) -C src print-executable
+	@$(MAKE) -C src print-executable
 
 check: tests
 tests:

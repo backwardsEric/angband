@@ -439,10 +439,10 @@ target_include_directories(OurExecutable PRIVATE
 )
 target_link_libraries(OurExecutable PRIVATE ${ANGBAND_CORE_LINK_LIBRARIES})
 
-# Allow for some introspection:  something downstream from the build process
-# can run "cmake --build . -t print-executable" in the build directory to get
-# the base name of the generated executable.
-add_custom_target(print-executable "${CMAKE_COMMAND}" -E echo "${OUR_EXECUTABLE_NAME}")
+# Allow for some introspection:  put the name of the executable generated in
+# the cache so something downstream can extract it with something like
+# "cmake -LA | sed -En 's/^OUR_CACHED_EXECUTABLE_NAME=//p'".
+set(OUR_CACHED_EXECUTABLE_NAME "${OUR_EXECUTABLE_NAME}${CMAKE_EXECUTABLE_SUFFIX}" CACHE INTERNAL "Name of primary executable generated")
 
 if(SUPPORT_X11_FRONTEND)
     include(src/cmake/macros/X11_Frontend.cmake)
