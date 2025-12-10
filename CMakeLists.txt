@@ -442,7 +442,8 @@ target_link_libraries(OurExecutable PRIVATE ${ANGBAND_CORE_LINK_LIBRARIES})
 # Allow for some introspection:  put the name of the executable generated in
 # the cache so something downstream can extract it with something like
 # "cmake -S . -LA build | sed -En 's/^OUR_CACHED_EXECUTABLE_NAME=//p'".
-set(OUR_CACHED_EXECUTABLE_NAME "${OUR_EXECUTABLE_NAME}${CMAKE_EXECUTABLE_SUFFIX}" CACHE INTERNAL "Name of primary executable generated")
+set(OUR_CACHED_EXECUTABLE_NAME "${OUR_EXECUTABLE_NAME}${CMAKE_EXECUTABLE_SUFFIX}" CACHE STRING "Name of primary executable generated")
+mark_as_advanced(OUR_CACHED_EXECUTABLE_NAME)
 
 if(SUPPORT_X11_FRONTEND)
     include(src/cmake/macros/X11_Frontend.cmake)
