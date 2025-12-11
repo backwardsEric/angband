@@ -10,14 +10,12 @@ jobs:
     name: Stock 
     runs-on: windows-latest
     steps:
-      - name: Add Visual Studio to PATH
-        uses: ilammy/msvc-dev-cmd@v1
-
       - name: Clone Project
         uses: actions/checkout@v4
 
       - name: Build
         run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
           mkdir build
           chdir build
           cmake -G "Visual Studio 15 2017" -A Win32 -DSUPPORT_WINDOWS_FRONTEND=ON -DSUPPORT_BUNDLED_PNG=ON ..
