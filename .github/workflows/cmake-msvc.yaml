@@ -10,8 +10,8 @@ jobs:
     name: Stock 
     runs-on: windows-latest
     steps:
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v2
+      - name: Add Visual Studio to PATH
+        uses: ilammy/msvc-dev-cmd@v1
 
       - name: Clone Project
         uses: actions/checkout@v4
