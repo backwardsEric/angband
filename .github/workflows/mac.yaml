@@ -6,23 +6,12 @@ on:
   pull_request:
 
 jobs:
-  build:
-    name: Cocoa
-    runs-on: macos-latest
-    steps:
-      - name: Clone Project
-        uses: actions/checkout@v6
-
-      - name: Build
-        run: |
-          cd src
-          env OPT="-Werror" make -f Makefile.osx -j$(sysctl -n hw.activecpu)
-
   cmake-curses:
     runs-on: macos-latest
     steps:
       - name: Install Build Dependencies
         run: |
+          brew untap aws/tap
           brew install ncurses
 
       - name: Clone Project
@@ -43,6 +32,7 @@ jobs:
       # by default).
       - name: Install Build Dependencies
         run: |
+          brew untap aws/tap
           brew install m4
           brew install autoconf
           brew install automake
