@@ -90,30 +90,36 @@ struct sdlpui_dialog_funcs {
 	SDL_bool (*handle_mousewheel)(struct sdlpui_dialog *d,
 		struct sdlpui_window *w, const SDL_MouseWheelEvent *e);
 	/**
-	 * Respond to the mouse focus being taken by another dialog.  May be
-	 * NULL.  new_c is the control taking focus, it may be NULL.  new_d
-	 * is the dialog taking focus, it may be NULL.
+	 * Respond to the mouse focus being taken by another dialog.  May not
+	 * be NULL.  new_c is the control taking focus; it may be NULL.  new_ind
+	 * is the zero-based index of the component in new_c taking focus; it
+	 * is ignored if new_c is NULL.  new_d is the dialog taking focus; it
+	 * may be NULL.
 	 */
 	void (*handle_loses_mouse)(struct sdlpui_dialog *d,
 		struct sdlpui_window *w, struct sdlpui_control *new_c,
-		struct sdlpui_dialog *new_d);
+		int new_ind, struct sdlpui_dialog *new_d);
 	/**
-	 * Respond to the key focus being taken by another dialog.  May be NULL.
-	 * new_c is the control taking focus, it may be NULL.  new_d is the
-	 * dialog taking focus; it may be NULL.
+	 * Respond to the key focus being taken by another dialog.  May not be
+	 * NULL.  new_c is the control taking focus; it may be NULL.  new_ind
+	 * is the zero-based index of the component in new_c taking focus; it
+	 * is ignored if new_c is NULL.  new_d is the dialog taking focus; it
+	 * may be NULL.
 	 */
 	void (*handle_loses_key)(struct sdlpui_dialog *d,
 		struct sdlpui_window *w, struct sdlpui_control *new_c,
-		struct sdlpui_dialog *new_d);
+		int new_ind, struct sdlpui_dialog *new_d);
 	/**
 	 * Respond to the mouse leaving the containing window if the dialog
-	 * had mouse focus when that happened.  May be NULL.
+	 * had mouse focus when that happened.  May not be NULL.  Only for
+	 * use by the routines in pui_foc.h.
 	 */
 	void (*handle_window_loses_mouse)(struct sdlpui_dialog *d,
 		struct sdlpui_window *w);
 	/**
 	 * Respond to the containing window losing key focus if the dialog
-	 * had key focus when that happened.  May be NULL.
+	 * had key focus when that happened.  May not be NULL.  Only for
+	 * use by the routines in pui_foc.h.
 	 */
 	void (*handle_window_loses_key)(struct sdlpui_dialog *d,
 		struct sdlpui_window *w);
@@ -127,29 +133,31 @@ struct sdlpui_dialog_funcs {
 		struct sdlpui_window *w);
 	/**
 	 * Go to the dialog's primary (or first) control that can accept
-	 * focus and give it key focus.  May be NULL if there is nothing in the
-	 * dialog that can accept focus.
+	 * focus and give it key focus.  Return a pointer to that control or
+	 * NULL if there is no such control.  May be NULL if there is nothing
+	 * in the dialog that can accept focus.
 	 */
-	void (*goto_first_control)(struct sdlpui_dialog *d,
+	struct sdlpui_control* (*goto_first_control)(struct sdlpui_dialog *d,
 		struct sdlpui_window *w);
 	/**
 	 * If forward is not SDL_FALSE, go to the dialog's next (with wrap
 	 * around) control after c that can accept focus.  If forward is
 	 * SDL_FALSE, go to the dialog's previous (with wrap around) control
 	 * before c that can accept focus.  May be NULL if the dialog never
-	 * accepts focus (goto_first_control is NULL or never changes d->c_key
-	 * from NULL and find_control_containing is NULL or always returns
-	 * NULL) or if it only has one, simple, control that can accept focus.
+	 * accepts focus (goto_first_control is NULL or never switches focus
+	 * to a control in the dialog) and find_control_containing is NULL
+	 * or always returns NULL) or if it only has one, simple, control
+	 * that can accept focus.
 	 */
 	void (*step_control)(struct sdlpui_dialog *d, struct sdlpui_window *w,
 		struct sdlpui_control *c, SDL_bool forward);
 	/**
 	 * Find the dialog's control that's willing to accept focus and
-	 * contains the given coordinate, relative to the window.  For simple
-	 * controls, set *comp_ind to zero.  For compound controls, set
-	 * *comp_ind to the index of the control, in the compound control, that
-	 * accepts focus and holds the coordinate.  May be NULL:  then mouse
-	 * motion will never cause the dialog to accept focus.
+	 * contains the given coordinate, relative to the window.  If no
+	 * control is found or the control is simple, set *comp_ind to zero.
+	 * If the control is compound, set *comp_ind to the zero-based index
+	 * of the component in the control that accepts focus.  May be NULL:
+	 * then mouse motion will never cause the dialog to accept focus.
 	 */
 	struct sdlpui_control *(*find_control_containing)(
 		struct sdlpui_dialog *d, struct sdlpui_window *w, Sint32 x,
@@ -237,12 +245,6 @@ struct sdlpui_dialog {
 	 * directly render to the window's backing buffer.
 	 */
 	SDL_Texture *texture;
-	/**
-	 * These point to the control which should receive mouse or keyboard
-	 * events, respectively.  If NULL, events will be directed to the
-	 * dialog itself.
-	 */
-	struct sdlpui_control *c_mouse, *c_key;
 	/** Holds menu/dialog-specific data. */
 	void *priv;
 	/**
@@ -267,11 +269,12 @@ struct sdlpui_dialog {
 	 */
 	SDL_bool pinned;
 	/**
-	 * If not SDL_FALSE, the dialog/menu's texture or visible state is
-	 * out-of-date with respect to the state of the dialog/menu and should
-	 * be rerendered.
+	 * Access with sdlpui_dialog_mark_for_redraw() or
+	 * sdlpui_dialog_should_redraw().  If its value is equal to SDL_TRUE,
+	 * what is shown on the screen or stored in the dialog's texture is
+	 * out of date with the dialog's current state.
 	 */
-	SDL_bool dirty;
+	SDL_atomic_t dirty;
 };
 
 
@@ -321,9 +324,12 @@ struct sdlpui_simple_info {
 };
 
 
+SDL_bool sdlpui_dialog_should_redraw(struct sdlpui_dialog *d);
 SDL_bool sdlpui_is_in_dialog(const struct sdlpui_dialog *d, Sint32 x, Sint32 y);
 SDL_bool sdlpui_is_descendant_dialog(struct sdlpui_dialog *ancestor,
 		const struct sdlpui_dialog *other);
+void sdlpui_dialog_mark_for_redraw(struct sdlpui_dialog *d,
+		struct sdlpui_window *w);
 void sdlpui_popup_dialog(struct sdlpui_dialog *d, struct sdlpui_window *w,
 		SDL_bool give_key_focus);
 void sdlpui_popdown_dialog(struct sdlpui_dialog *d, struct sdlpui_window *w,
@@ -358,16 +364,16 @@ void sdlpui_menu_handle_window_loses_key(struct sdlpui_dialog *d,
 		struct sdlpui_window *w);
 void sdlpui_dialog_handle_loses_mouse(struct sdlpui_dialog *d,
 		struct sdlpui_window *w, struct sdlpui_control *new_c,
-		struct sdlpui_dialog *new_d);
+		int new_ind, struct sdlpui_dialog *new_d);
 void sdlpui_menu_handle_loses_mouse(struct sdlpui_dialog *d,
 		struct sdlpui_window *w, struct sdlpui_control *new_c,
-		struct sdlpui_dialog *new_d);
+		int new_ind, struct sdlpui_dialog *new_d);
 void sdlpui_dialog_handle_loses_key(struct sdlpui_dialog *d,
 		struct sdlpui_window *w, struct sdlpui_control *new_c,
-		struct sdlpui_dialog *new_d);
+		int new_ind, struct sdlpui_dialog *new_d);
 void sdlpui_menu_handle_loses_key(struct sdlpui_dialog *d,
 		struct sdlpui_window *w, struct sdlpui_control *new_c,
-		struct sdlpui_dialog *new_d);
+		int new_ind, struct sdlpui_dialog *new_d);
 
 /* Construct a simple menu */
 struct sdlpui_dialog *sdlpui_start_simple_menu(struct sdlpui_dialog *parent,
