@@ -1,34 +1,138 @@
 macro(configure_gcu_frontend _NAME_TARGET)
-    find_package(PkgConfig REQUIRED)
+    set(_FOUND 0)
+    set(_NCURSES 0)
+    find_package(PkgConfig OPTIONAL)
 
-    if(CMAKE_SYSTEM_NAME STREQUAL "OpenBSD")
-        # OpenBSD ships ncursesw by default; only 'ncurses.pc' exists
-        pkg_check_modules(CURSES REQUIRED IMPORTED_TARGET ncurses)
+    if(PkgConfig_FOUND)
+        if(CMAKE_SYSTEM_NAME STREQUAL "OpenBSD")
+            # OpenBSD ships ncursesw by default; only 'ncurses.pc' exists
+            pkg_check_modules(CURSES IMPORTED_TARGET ncurses)
+        else()
+            pkg_check_modules(CURSES IMPORTED_TARGET ncursesw)
+        endif()
+
+        if(CURSES_FOUND)
+            set(_FOUND 1)
+            set(_NCURSES 1)
+            include(PkgConfigHelpers)
+            angband_pkgconfig_select_target(CURSES CURSES_SELECTED)
+        endif()
+    endif()
+    # Need 3.10 or later required for CURSES_NEED_WIDE
+    if((NOT _FOUND) AND ((${CMAKE_MAJOR_VERSION} GREATER 3) OR ((${CMAKE_MAJOR_VERSION} EQUAL 3) AND (${CMAKE_MINOR_VERSION} GREATER 9))))
+        set(CURSES_NEED_WIDE TRUE)
+        set(CURSES_NEED_NCURSES TRUE)
+        find_package(Curses)
+        if((Curses_FOUND) AND (CURSES_HAVE_NCURSES_H))
+            if(NOT TARGET Curses:Curses)
+                add_library(Curses::Curses INTERFACE IMPORTED)
+                set_target_properties(Curses::Curses PROPERTIES
+                    INTERFACE_LINK_LIBRARIES "${CURSES_LIBRARIES}"
+                    INTERFACE_INCLUDE_DIRECTORIES "${CURSES_INCLUDE_DIRS}"
+                )
+            endif()
+            set(_FOUND 1)
+            set(_NCURSES 1)
+            set(CURSES_SELECTED Curses::Curses)
+        endif()
+    endif()
+    # Need 3.14 or later for CMAKE_REQUIRED_LINK_OPTIONS.
+    if(NOT _FOUND AND ((${CMAKE_MAJOR_VERSION} GREATER 3) OR ((${CMAKE_MAJOR_VERSION} EQUAL 3) AND (${CMAKE_MINOR_VERSION} GREATER 13))))
+        include(CheckSymbolExists)
+        set(_OLD_LINK_OPTIONS ${CMAKE_REQUIRED_LINK_OPTIONS})
+        set(CMAKE_REQUIRED_LINK_OPTIONS ${_OLD_LINK_OPTIONS} "-lncurses")
+        if(${CMAKE_MAJOR_VERSION} GREATER 3)
+            set(_LIBRARIES "LINKER:-l,ncurses")
+        else()
+            set(_LIBRARIES "-lncurses")
+        endif()
+        check_symbol_exists("mvaddnwstr" "ncurses.h" HAVE_MVADDNWSTR_NCURSES)
+        if(HAVE_MVADDNWSTR_NCURSES)
+            if(NOT TARGET Curses::Curses)
+                add_library(Curses::Curses INTERFACE IMPORTED)
+                set_target_properties(Curses::Curses PROPERTIES
+                    INTERFACE_LINK_LIBRARIES ${_LIBRARIES}
+                )
+            endif()
+            set(_FOUND 1)
+            set(_NCURSES 1)
+            set(CURSES_SELECTED Curses::Curses)
+        else()
+            # Try again but with _XOPEN_SOURCE_EXTENDED set (needed on some
+            # platforms, macOS is one, to see mvwaddnwstr).
+            set(_OLD_DEFINITIONS ${CMAKE_REQUIRED_DEFINITIONS})
+            set(CMAKE_REQUIRED_DEFINITIONS ${CMAKE_REQUIRED_DEFINITIONS} "-D_XOPEN_SOURCE_EXTENDED")
+            check_symbol_exists("mvaddnwstr" "ncurses.h" HAVE_MVADDNWSTR_NCURSES_XOPEN)
+            set(CMAKE_REQUIRED_DEFINITIONS ${_OLD_DEFINITIONS})
+            if(HAVE_MVADDNWSTR_NCURSES_XOPEN)
+                if(NOT TARGET Curses::Curses)
+                    add_library(Curses::Curses INTERFACE IMPORTED)
+                    set_target_properties(Curses::Curses PROPERTIES
+                        INTERFACE_COMPILE_DEFINITIONS -D_XOPEN_SOURCE_EXTENDED
+                        INTERFACE_LINK_LIBRARIES ${_LIBRARIES}
+                    )
+                endif()
+                set(_FOUND 1)
+                set(_NCURSES 1)
+                set(CURSES_SELECTED Curses::Curses)
+            endif()
+        endif()
+        if(NOT _FOUND)
+            set(CMAKE_REQUIRED_LINK_OPTIONS ${_OLD_LINK_OPTIONS} "-lcurses")
+            if(${CMAKE_MAJOR_VERSION} GREATER 3)
+                set(_LIBRARIES "LINKER:-l,curses")
+            else()
+                set(_LIBRARIES "-lcurses")
+            endif()
+            check_symbol_exists("mvaddnwstr" "curses.h" HAVE_MVADDNSTR_CURSES)
+            if(HAVE_MVADDNWSTR_CURSES)
+                if(NOT TARGET Curses::Curses)
+                    add_library(Curses::Curses INTERFACE IMPORTED)
+                    set_target_properties(Curses::Curses PROPERTIES
+                        INTERFACE_LINK_LIBRARIES ${_LIBRARIES}
+                    )
+                endif()
+                set(_FOUND 1)
+                set(CURSES_SELECTED Curses::Curses)
+            endif()
+        endif()
+        set(CMAKE_REQUIRED_LINK_OPTIONS ${_OLD_LINK_OPTIONS})
+    endif()
+
+    if(_FOUND)
+        target_link_libraries(${_NAME_TARGET} PRIVATE ${CURSES_SELECTED})
+        target_compile_definitions(${_NAME_TARGET} PRIVATE
+            USE_GCU
+            $<$<BOOL:${_NCURSES}>:USE_NCURSES>
+            $<$<BOOL:${WIN32}>:WIN32_CONSOLE_MODE>
+            $<$<BOOL:${MINGW}>:MSYS2_ENCODING_WORKAROUND>
+        )
+
+        # Check if use_default_colors() exists
+        if(_NCURSES)
+            set(_HEADER "ncurses.h")
+        else()
+            set(_HEADER "curses.h")
+        endif()
+        include(CheckSymbolExists)
+        set(_OLD_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES})
+        set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${CURSES_SELECTED})
+        set(_OLD_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES})
+        get_target_property(_INCLUDES ${CURSES_SELECTED} INTERFACE_INCLUDE_DIRECTORIES)
+        set(CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${_INCLUDES})
+        set(_OLD_DEFINITIONS ${CMAKE_REQUIRED_DEFINITIONS})
+        get_target_property(_DEFINITIONS ${CURSES_SELECTED} INTERFACE_COMPILE_DEFINITIONS)
+        set(CMAKE_REQUIRED_DEFINITIONS ${CMAKE_REQUIRED_DEFINITIONS} ${_DEFINITIONS})
+        check_symbol_exists(use_default_colors "${_HEADER}" ANGBAND_NCURSESW_HAS_USE_DEFAULT_COLORS)
+        set(CMAKE_REQUIRED_LIBRARIES ${_OLD_REQUIRED_LIBRARIES})
+        set(CMAKE_REQUIRED_INCLUDES ${_OLD_REQUIRED_INCLUDES})
+        set(CMAKE_REQUIRED_DEFINITIONS ${_OLD_DEFINITIONS})
+        if(ANGBAND_NCURSESW_HAS_USE_DEFAULT_COLORS)
+            target_compile_definitions(${_NAME_TARGET} PRIVATE HAVE_USE_DEFAULT_COLORS)
+        endif()
+
+        message(STATUS "Support for GCU front end - Ready")
     else()
-        pkg_check_modules(CURSES REQUIRED IMPORTED_TARGET ncursesw)
+        message(FATAL_ERROR "Support for GCU front end - curses not found")
     endif()
-
-    include(PkgConfigHelpers)
-    angband_pkgconfig_select_target(CURSES CURSES_SELECTED)
-    target_link_libraries(${_NAME_TARGET} PRIVATE ${CURSES_SELECTED})
-
-    target_compile_definitions(${_NAME_TARGET} PRIVATE
-        USE_GCU
-        USE_NCURSES
-        $<$<BOOL:${WIN32}>:WIN32_CONSOLE_MODE>
-        $<$<BOOL:${MINGW}>:MSYS2_ENCODING_WORKAROUND>
-    )
-
-    # Check if use_default_colors() exists
-    include(CheckSymbolExists)
-    set(CMAKE_REQUIRED_LIBRARIES ${CURSES_SELECTED})
-    set(CMAKE_REQUIRED_INCLUDES ${CURSES_INCLUDE_DIRS})
-    check_symbol_exists(use_default_colors "curses.h" ANGBAND_NCURSESW_HAS_USE_DEFAULT_COLORS)
-    unset(CMAKE_REQUIRED_LIBRARIES)
-    unset(CMAKE_REQUIRED_INCLUDES)
-    if(ANGBAND_NCURSESW_HAS_USE_DEFAULT_COLORS)
-        target_compile_definitions(${_NAME_TARGET} PRIVATE HAVE_USE_DEFAULT_COLORS)
-    endif()
-
-    message(STATUS "Support for GCU front end - Ready")
 endmacro()
