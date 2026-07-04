@@ -1,7 +1,7 @@
 macro(configure_gcu_frontend _NAME_TARGET)
     set(_FOUND 0)
     set(_NCURSES 0)
-    find_package(PkgConfig OPTIONAL)
+    find_package(PkgConfig)
 
     if(PkgConfig_FOUND)
         if(CMAKE_SYSTEM_NAME STREQUAL "OpenBSD")
