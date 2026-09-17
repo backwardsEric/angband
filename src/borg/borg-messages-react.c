@@ -124,8 +124,12 @@ bool borg_react_prompted(const char* buf, struct keypress *key)
 #endif
 
         if (!borg_cfg[BORG_CHEAT_DEATH]) {
-            reincarnate_borg();
-            borg.status.respawning = 7;
+            /* Flush keys */
+            borg_flush();
+
+            borg_reincarnate_start();
+            key->code = 'y';
+            return true;
         }
         else
             do_cmd_wiz_cure_all(0);

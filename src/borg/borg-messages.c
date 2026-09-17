@@ -246,6 +246,7 @@ bool borg_get_messages(struct keypress* key, struct loc cursor)
         return true;
     }
 
+#if 0
     /* HACK */
     /* in the odd case where a we get here before the message */
     /* about cheating death comes up.  */
@@ -253,17 +254,12 @@ bool borg_get_messages(struct keypress* key, struct loc cursor)
         if (borg_cfg[BORG_VERBOSE])
             borg_note("# Mid reincarnation, no map yet");
 
-        /* there is an odd case I can't track down where the borg */
-        /* tries to respawn but gets caught in a loop. */
-        borg.goal.respawning_loop_count--;
-        if (borg.goal.respawning_loop_count <= 0)
-            borg_oops("reincarnation failure");
-
         /* do nothing */
         key->code = KC_ENTER;
 
         return true;
     }
+#endif
 
     /* Catch normal messages */
     /* If there is text on the first line... */
@@ -361,8 +357,10 @@ static void borg_parse_aux(char *msg, int len)
             /* Abort */
             borg_oops("death");
 
-            /* Abort right now! */
-            borg.status.active = false;
+            /* Abort right now if not reincarnating */
+            if (!borg.status.respawning) {
+                borg.status.active = false;
+            }
             /* Noise XXX XXX XXX */
             Term_xtra(TERM_XTRA_NOISE, 1);
         }
@@ -1041,7 +1039,6 @@ static void borg_parse_aux(char *msg, int len)
     /* Hack to protect against clock overflows and errors */
     if (prefix(msg, "Illegal ")) {
         /* Oops */
-        borg.status.respawning = 7;
         borg_keypress(ESCAPE);
         borg_keypress(ESCAPE);
         borg.antibounce_count += 100;

@@ -497,6 +497,15 @@ void borg_prepare_race_class_info(void)
 {
     /* Initialize the various spell arrays by book */
     borg_prepare_book_info();
+
+    /*
+     * Notice if the game is closed so a reinitialization can be done if the
+     * game is restarted without exiting.
+     * this needs to be done here because the game clears all events when
+     * the dungeon is recreated
+     */
+    game_closed = false;
+    event_add_handler(EVENT_LEAVE_GAME, borg_leave_game, NULL);
 }
 
 /*
@@ -599,13 +608,6 @@ void borg_init(void)
 
     /* Notice the new race and class */
     borg_prepare_race_class_info();
-
-    /*
-     * Notice if the game is closed so a reinitialization can be done if the
-     * game is restarted without exiting.
-     */
-    game_closed = false;
-    event_add_handler(EVENT_LEAVE_GAME, borg_leave_game, NULL);
 
     /*** All done ***/
 

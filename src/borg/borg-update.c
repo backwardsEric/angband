@@ -43,6 +43,7 @@
 #include "borg-messages.h"
 #include "borg-prepared.h"
 #include "borg-projection.h"
+#include "borg-reincarnate.h"
 #include "borg-store-buy.h"
 #include "borg-store-sell.h"
 #include "borg-store.h"
