@@ -122,11 +122,10 @@ bool borg_react_prompted(const char* buf, struct keypress *key)
         /* Note the score */
         borg_enter_score();
 #endif
+        /* Flush keys */
+        borg_flush();
 
         if (!borg_cfg[BORG_CHEAT_DEATH]) {
-            /* Flush keys */
-            borg_flush();
-
             borg_reincarnate_start();
             key->code = 'y';
             return true;
