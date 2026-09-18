@@ -25,6 +25,7 @@
 
 #include "borg-init.h"
 #include "borg-io.h"
+#include "borg-messages-react.h"
 #include "borg-trait.h"
 #include "borg.h"
 
@@ -304,12 +305,17 @@ void borg_reincarnate_start(void)
 
     borg.status.respawning = true;
 
+    /* clear out the old reactions */
+    borg_clear_reactions();
+
     borg_note("# Respawning");
 
+    /* New character */
     borg_keypress('n');
     borg_keypress('y');
-    borg_keypress('n');
 
+    /* Not based on old character  */
+    borg_keypress('n');
 
     if (borg_cfg[BORG_RESPAWN_RACE] != -1)
         race = borg_cfg[BORG_RESPAWN_RACE];
