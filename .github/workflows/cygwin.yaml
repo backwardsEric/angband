@@ -32,7 +32,8 @@ jobs:
           cd "$(cygpath -u "$GITHUB_WORKSPACE")"
           mkdir build && cd build
           which cmake
-          ls "/cygdrive/c/Program Files/CMake/bin"
+          file `which cmake`
+          ls /usr/bin/i686-*
           cmake -G Ninja --log-level=TRACE --debug-output \
             -DCMAKE_C_COMPILER=/usr/bin/i686-w64-mingw32-gcc \
             -DCMAKE_RC_COMPILER=/usr/bin/i686-w64-mingw32-windres \
