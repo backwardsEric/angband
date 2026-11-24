@@ -984,11 +984,11 @@ static SDL_bool handle_mb_mousewheel(struct sdlpui_control *c,
 	mbp = c->priv;
 
 	/*
-	 * ranged_int buttons allow vertical mouse wheel changes to adjust the
-	 * value.  Everything else swallows the mouse wheel event without
-	 * doing anything.
+	 * Enabled ranged_int buttons allow vertical mouse wheel changes to
+	 * adjust the value.  Everything else swallows the mouse wheel event
+	 * without doing anything.
 	 */
-	if (mbp->subtype_code != SDLPUI_MB_RANGED_INT) {
+	if (mbp->disabled || mbp->subtype_code != SDLPUI_MB_RANGED_INT) {
 		return SDL_TRUE;
 	}
 
@@ -2339,7 +2339,8 @@ SDL_bool sdlpui_control_handle_key(struct sdlpui_control *c,
 		struct sdlpui_dialog *d, struct sdlpui_window *w,
 		const struct SDL_KeyboardEvent *e)
 {
-	if (e->keysym.sym == SDLK_RETURN && e->state == SDL_PRESSED) {
+	if (!sdlpui_is_disabled(c) && e->keysym.sym == SDLK_RETURN
+			&& e->state == SDL_PRESSED) {
 		SDL_Keymod mods = sdlpui_get_interesting_keymods();
 
 		if (mods == KMOD_NONE) {
@@ -2383,6 +2384,9 @@ SDL_bool sdlpui_control_handle_mouseclick(struct sdlpui_control *c,
 		struct sdlpui_dialog *d, struct sdlpui_window *w,
 		const struct SDL_MouseButtonEvent *e)
 {
+	if (sdlpui_is_disabled(c)) {
+		return SDL_FALSE;
+	}
 	if (e->button == SDL_BUTTON_LEFT && e->state == SDL_PRESSED
 			&& c->ftb->respond_default) {
 		SDLPUI_EVENT_TRACER((*c->ftb->get_type_name)(c), c,

@@ -179,9 +179,17 @@ static SDL_bool handle_simple_menu_key(struct sdlpui_dialog *d,
 	c = sdlpui_get_control_with_focus(SDLPUI_ACTION_HINT_KEY);
 
 	/* Relay to the control with focus.  if it handles it we're done. */
-	if (c && c->ftb->handle_key && (*c->ftb->handle_key)(c, d, w, e)) {
-		sdlpui_end_focus_transaction();
-		return SDL_TRUE;
+	if (c) {
+		if (sdlpui_is_disabled(c)) {
+			(void)sdlpui_change_focus(NULL, 0, d, w,
+				SDLPUI_ACTION_HINT_KEY, SDL_FALSE, SDL_TRUE);
+			sdlpui_end_focus_transaction();
+			return SDL_TRUE;
+		} else if (c->ftb->handle_key
+				&& (*c->ftb->handle_key)(c, d, w, e)) {
+			sdlpui_end_focus_transaction();
+			return SDL_TRUE;
+		}
 	}
 
 	SDL_assert(d->type_code == SDLPUI_DIALOG_SIMPLE_MENU && d->priv);
@@ -1723,10 +1731,17 @@ SDL_bool sdlpui_dialog_handle_key(struct sdlpui_dialog *d,
 
 	/* Relay to the control with focus.  If it handles it, we are done. */
 	c_key = sdlpui_get_control_with_focus(SDLPUI_ACTION_HINT_KEY);
-	if (c_key && c_key->ftb->handle_key
-			&& (*c_key->ftb->handle_key)(c_key, d, w, e)) {
-		sdlpui_end_focus_transaction();
-		return SDL_TRUE;
+	if (c_key) {
+		if (sdlpui_is_disabled(c_key)) {
+			(void)sdlpui_change_focus(NULL, 0, d, w,
+				SDLPUI_ACTION_HINT_KEY, SDL_FALSE, SDL_TRUE);
+			sdlpui_end_focus_transaction();
+			return SDL_TRUE;
+		} else if (c_key->ftb->handle_key
+				&& (*c_key->ftb->handle_key)(c_key, d, w, e)) {
+			sdlpui_end_focus_transaction();
+			return SDL_TRUE;
+		}
 	}
 
 	mods = sdlpui_get_interesting_keymods();
@@ -1802,10 +1817,18 @@ SDL_bool sdlpui_dialog_handle_textin(struct sdlpui_dialog *d,
 
 	/* Relay to the control with focus.  If it handles it, we are done. */
 	c_key = sdlpui_get_control_with_focus(SDLPUI_ACTION_HINT_KEY);
-	if (c_key && c_key->ftb->handle_textin
-			&& (*c_key->ftb->handle_textin)(c_key, d, w, e)) {
-		sdlpui_end_focus_transaction();
-		return SDL_TRUE;
+	if (c_key) {
+		if (sdlpui_is_disabled(c_key)) {
+			sdlpui_change_focus(NULL, 0, d, w,
+				SDLPUI_ACTION_HINT_KEY, SDL_FALSE, SDL_TRUE);
+			sdlpui_end_focus_transaction();
+			return SDL_TRUE;
+		} else if (c_key->ftb->handle_textin
+				&& (*c_key->ftb->handle_textin)(
+				c_key, d, w, e)) {
+			sdlpui_end_focus_transaction();
+			return SDL_TRUE;
+		}
 	}
 
 	sdlpui_end_focus_transaction();
@@ -1833,10 +1856,18 @@ SDL_bool sdlpui_dialog_handle_textedit(struct sdlpui_dialog *d,
 
 	/* Relay to the control with focus.  If it handles it, we are done. */
 	c_key = sdlpui_get_control_with_focus(SDLPUI_ACTION_HINT_KEY);
-	if (c_key && c_key->ftb->handle_textedit
-			&& (*c_key->ftb->handle_textedit)(c_key, d, w, e)) {
-		sdlpui_end_focus_transaction();
-		return SDL_TRUE;
+	if (c_key) {
+		if (sdlpui_is_disabled(c_key)) {
+			(void)sdlpui_change_focus(NULL, 0, d, w,
+				SDLPUI_ACTION_HINT_KEY, SDL_FALSE, SDL_TRUE);
+			sdlpui_end_focus_transaction();
+			return SDL_TRUE;
+		} else if (c_key->ftb->handle_textedit
+				&& (*c_key->ftb->handle_textedit)(
+				c_key, d, w, e)) {
+			sdlpui_end_focus_transaction();
+			return SDL_TRUE;
+		}
 	}
 
 	sdlpui_end_focus_transaction();
@@ -1880,11 +1911,16 @@ SDL_bool sdlpui_dialog_handle_mouseclick(struct sdlpui_dialog *d,
 	}
 
 	/* Relay to the control with focus.  If it handles it, we are done. */
-	if (c_mouse && c_mouse->ftb->handle_mouseclick
-			&& (*c_mouse->ftb->handle_mouseclick)(
+	if (c_mouse) {
+		if (sdlpui_is_disabled(c_mouse)) {
+			(void)sdlpui_change_focus(NULL, 0, d, w,
+				SDLPUI_ACTION_HINT_MOUSE, SDL_FALSE, SDL_TRUE);
+		} else if (c_mouse->ftb->handle_mouseclick
+				&& (*c_mouse->ftb->handle_mouseclick)(
 				c_mouse, d, w, e)) {
-		sdlpui_end_focus_transaction();
-		return SDL_TRUE;
+			sdlpui_end_focus_transaction();
+			return SDL_TRUE;
+		}
 	}
 
 	sdlpui_end_focus_transaction();
@@ -1913,11 +1949,18 @@ SDL_bool sdlpui_dialog_handle_mousemove(struct sdlpui_dialog *d,
 
 	/* Relay to the control with focus.  If it handles it, we are done. */
 	c_mouse = sdlpui_get_control_with_focus(SDLPUI_ACTION_HINT_MOUSE);
-	if (c_mouse && c_mouse->ftb->handle_mousemove
-			&& (*c_mouse->ftb->handle_mousemove)(
+	if (c_mouse) {
+		if (sdlpui_is_disabled(c_mouse)) {
+			(void)sdlpui_change_focus(NULL, 0, d, w,
+				SDLPUI_ACTION_HINT_MOUSE, SDL_FALSE, SDL_TRUE);
+			sdlpui_end_focus_transaction();
+			return SDL_TRUE;
+		} else if (c_mouse->ftb->handle_mousemove
+				&& (*c_mouse->ftb->handle_mousemove)(
 				c_mouse, d, w, e)) {
-		sdlpui_end_focus_transaction();
-		return SDL_TRUE;
+			sdlpui_end_focus_transaction();
+			return SDL_TRUE;
+		}
 	}
 
 	/* If not allowed to change focus, swallow the event. */
@@ -1968,11 +2011,18 @@ SDL_bool sdlpui_dialog_handle_mousewheel(struct sdlpui_dialog *d,
 
 	/* Relay to the control with focus.  If it handles it, we're done. */
 	c_mouse = sdlpui_get_control_with_focus(SDLPUI_ACTION_HINT_MOUSE);
-	if (c_mouse && c_mouse->ftb->handle_mousewheel
-			&& (*c_mouse->ftb->handle_mousewheel)(
+	if (c_mouse) {
+		if (sdlpui_is_disabled(c_mouse)) {
+			(void)sdlpui_change_focus(NULL, 0, d, w,
+				SDLPUI_ACTION_HINT_MOUSE, SDL_FALSE, SDL_TRUE);
+			sdlpui_end_focus_transaction();
+			return SDL_TRUE;
+		} else if (c_mouse->ftb->handle_mousewheel
+				&& (*c_mouse->ftb->handle_mousewheel)(
 				c_mouse, d, w, e)) {
-		sdlpui_end_focus_transaction();
-		return SDL_TRUE;
+			sdlpui_end_focus_transaction();
+			return SDL_TRUE;
+		}
 	}
 
 	sdlpui_end_focus_transaction();
